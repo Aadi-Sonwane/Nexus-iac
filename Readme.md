@@ -109,7 +109,7 @@ terraform apply
 ### 🔗 Accessing the Portal
 Once the deployment is finished, you can access your services at:
 
-- Nexus UI: https://prelive.rankhex.in/nexus
+- Nexus UI: https://prelive.rankhex.in/nexus/
 
 - Docker Registry: https://prelive.rankhex.in:5000 (Use docker login)
 
