@@ -10,8 +10,8 @@ echo "--- [1] Storage: Self-Discovering EFS ID ---"
 TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
 REGION=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/placement/region)
 
-# Query EFS ID based on Name tag containing 'rankhex'
-EFS_ID=$(aws efs describe-file-systems --region $REGION --query 'FileSystems[?Tags[?Key==`Name` && contains(Value, `rankhex`)]].FileSystemId' --output text)
+# Query EFS ID based on Name tag containing 'trainwithats'
+EFS_ID=$(aws efs describe-file-systems --region $REGION --query 'FileSystems[?Tags[?Key==`Name` && contains(Value, `trainwithats`)]].FileSystemId' --output text)
 
 if [ -z "$EFS_ID" ] || [ "$EFS_ID" == "None" ]; then
     echo "ERROR: EFS ID not found via tags. Exiting."
@@ -32,16 +32,20 @@ echo "--- [2] Environment: Installing Java 8 ---"
 dnf install java-1.8.0-amazon-corretto -y
 JAVA_8_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::")
 
-echo "--- [3] Download: Fetching Nexus OSS 3.69 ---"
+echo "--- [3] Download: Fetching Nexus OSS 3.68.1 ---"
 cd /opt
-wget -q "https://download.sonatype.com/nexus/3/nexus-3.69.0-02-java8-unix.tar.gz" -O nexus.tar.gz
+wget -q "https://download.sonatype.com/nexus/3/nexus-3.68.1-02-java8-unix.tar.gz" -O nexus.tar.gz
 tar -xvf nexus.tar.gz --exclude='sonatype-work'
-rm -rf /opt/nexus && mv nexus-3.69.0-02 nexus
+rm -rf /opt/nexus && mv nexus-3.68.1-02 nexus
 rm -f nexus.tar.gz
 
 echo "--- [4] Configuration: Fixing Context Path (/nexus) ---"
 mkdir -p /opt/sonatype-work/nexus3/etc
-echo "nexus-context-path=/nexus" > /opt/sonatype-work/nexus3/etc/nexus.properties
+
+cat <<EOF > /opt/sonatype-work/nexus3/etc/nexus.properties
+nexus-context-path=/nexus
+nexus.blobstore.s3.ownership.check.disabled=true
+EOF
 sed -i 's|# nexus-context-path=/|nexus-context-path=/nexus|g' /opt/nexus/etc/nexus-default.properties
 echo -e "run_as_user=\"nexus\"\nINSTALL4J_JAVA_HOME=\"$JAVA_8_HOME\"" > /opt/nexus/bin/nexus.rc
 

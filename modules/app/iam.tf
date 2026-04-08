@@ -22,24 +22,29 @@ resource "aws_iam_role_policy" "nexus_policy" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-      # 1. S3 Discovery & Data Access (COMBINED FIX)
+      # 1. S3 Discovery & Data Access (STRENGTHENED FOR DOCKER)
       {
         Effect   = "Allow"
         Action   = [
           "s3:ListAllMyBuckets",
           "s3:GetBucketLocation",
           "s3:ListBucket",
+          "s3:GetBucketAcl",
           "s3:HeadBucket",
           "s3:PutObject",
           "s3:GetObject",
           "s3:DeleteObject",
           "s3:PutObjectTagging",
-          "s3:GetObjectTagging"
+          "s3:GetObjectTagging",
+          # --- ADDED FOR DOCKER & LARGE ARTIFACTS ---
+          "s3:AbortMultipartUpload",
+          "s3:ListMultipartUploadParts",
+          "s3:ListBucketMultipartUploads"
         ]
         Resource = [
           "arn:aws:s3:::${var.s3_bucket_id}",
           "arn:aws:s3:::${var.s3_bucket_id}/*",
-          "*" # Needed for ListAllMyBuckets and GetBucketLocation verification
+          "*" 
         ]
       },
       # 2. EFS Mounting & Writing (Specific to your EFS ID)
