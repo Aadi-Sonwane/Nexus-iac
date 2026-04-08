@@ -6,7 +6,7 @@
 # --- Core Identifiers ---
 project_name = "trainwithats"
 region       = "ap-south-1"
-account_id   = "11111111111111" # <-- DOUBLE CHECK THIS IN AWS CONSOLE
+account_id   = "6788998888" # <-- DOUBLE CHECK THIS IN AWS CONSOLE
 domain_name  = "trainwithats.online"
 
 # --- Networking Layout (10.10.0.0/16 Supernet) ---
